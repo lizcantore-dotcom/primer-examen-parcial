@@ -1,95 +1,22 @@
-/*import { ObjectId } from "mongodb"
+import { ObjectId } from "mongodb"
 import { db as conexion } from "../config/db.js"
-import * as reviewService from "./reviews.service.js"
 
+    // Servicios de Mascotas
 export async function getPets(filtros = {}) {
     const db = conexion()
     const filter = { eliminado: { $ne: true } }     // != true https://www.mongodb.com/es/docs/manual/reference/operator/query/ne/
+
     // Calculo de paginas
     const page = parseInt(filtros?.page ?? 1)
     const limit = parseInt(filtros?.limit ?? 10)
     const skip = (page - 1) * limit
 
-    // Filtro por idioma
-    if (filtros?.tamaño) filter.tamaño = filtros?.tamaño
-
-   
-    // Busqueda por titulo
-    if (filtros?.title) filter.title = { $regex: filtros?.title, $options: "i" }   //https://www.mongodb.com/es/docs/manual/reference/operator/query/regex/
-    //if( filtros?.title ) filter.$text = { $search: filtros?.title } //Necesitan un indice //https://www.mongodb.com/es/docs/manual/reference/operator/query/text/
-
-    const pets = await db.collection("mascotas").find(filter).skip(skip).limit(limit).toArray()
-    return pets
-}
-
-export async function getPetsByTitle(id) {
-    const db = conexion()
-    const pets = await db.collection("mascotas").findOne({ _id: new ObjectId(id) })
-    return pets
-}
-
-export async function guardarPets(pets) {
-    const db = conexion()
-    await db.collection("mascotas").insertOne(pets)
-    return pets
-}
-
-export async function editarPets(id, pets) {
-    const db = conexion()
-    await db.collection("mascotas").replaceOne({ _id: new ObjectId(id) }, pets)
-    return pets
-}
-
-export async function eliminarPetsFisico(id) {
-    const db = conexion()
-    let pets = await getPetsByTitle(id)
-    await db.collection("mascotas").deleteOne({ _id: new ObjectId(id) })
-    return pets
-}
-
-export async function eliminarPetsLogico(id) {
-    const db = conexion()
-    let pets = await getPetsByTitle(id)
-    await db.collection("mascotas").updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { eliminado: true } } //https://www.mongodb.com/es/docs/manual/reference/operator/update/set/
-    )
-    return pets
-}
-
-export async function petsExists(id){
-    const db = conexion()
-    console.log("id mascota",id)
-    const count = await db.collection("mascotas").countDocuments({_id:  new ObjectId(id)})
-    return count > 0
-}
-
-export async function savePetsReview(id, usuario){
-    // _id
-    // nombre/email
-    // comentario
-    const pets = await getPetsByTitle(id)
-    const petsReview = await reviewService.saveReview(usuario, pets)
-    return petsReview
-*/
-import { ObjectId } from "mongodb"
-import { db as conexion } from "../config/db.js"
-import * as reviewService from "./reviews.service.js"
-
-export async function getPets(filtros = {}) {
-    const db = conexion()
-    const filter = { eliminado: { $ne: true } }
-
-    const page = parseInt(filtros?.page ?? 1)
-    const limit = parseInt(filtros?.limit ?? 10)
-    const skip = (page - 1) * limit
-
+    // Filtros
     if (filtros?.section) filter.section = filtros.section
-    if (filtros?.tamaño) filter.tamaño = filtros.tamaño
     if (filtros?.size) filter.size = filtros.size
 
-    if (filtros?.name) filter.name = { $regex: filtros.name, $options: "i" }
-    if (filtros?.title) filter.title = { $regex: filtros.title, $options: "i" }
+    // Busqueda por nombre
+    if (filtros?.name) filter.name = { $regex: filtros.name, $options: "i" }   //https://www.mongodb.com/es/docs/manual/reference/operator/query/regex/
 
     const pets = await db.collection("pets").find(filter).skip(skip).limit(limit).toArray()
     return pets
@@ -103,12 +30,18 @@ export async function getPetsByTitle(id) {
 
 export async function guardarPets(pets) {
     const db = conexion()
+    if (pets.shelter_id) {
+        pets.shelter_id = new ObjectId(pets.shelter_id)
+    }
     await db.collection("pets").insertOne(pets)
     return pets
 }
 
 export async function editarPets(id, pets) {
     const db = conexion()
+    if (pets.shelter_id) {
+        pets.shelter_id = new ObjectId(pets.shelter_id)
+    }
     await db.collection("pets").replaceOne({ _id: new ObjectId(id) }, pets)
     return pets
 }
@@ -125,19 +58,60 @@ export async function eliminarPetsLogico(id) {
     let pets = await getPetsByTitle(id)
     await db.collection("pets").updateOne(
         { _id: new ObjectId(id) },
-        { $set: { eliminado: true } }
+        { $set: { eliminado: true } } //https://www.mongodb.com/es/docs/manual/reference/operator/update/set/
     )
     return pets
 }
 
-export async function petsExists(id){
+export async function petsExists(id) {
     const db = conexion()
+    console.log("id mascota", id)
     const count = await db.collection("pets").countDocuments({ _id: new ObjectId(id) })
     return count > 0
 }
 
-export async function savePetsReview(id, usuario){
-    const pets = await getPetsByTitle(id)
-    const petsReview = await reviewService.saveReview(usuario, pets)
-    return petsReview
+    // Servicios de Refugios
+
+export async function getShelters(filtros = {}) {
+    const db = conexion()
+    const filter = { eliminado: { $ne: true } }
+
+    if (filtros?.name) {
+        filter.name = { $regex: filtros.name, $options: "i" }
+    }
+
+    const shelters = await db.collection("shelters").find(filter).toArray()
+    return shelters
+}
+
+export async function getShelterById(id) {
+    const db = conexion()
+    const shelter = await db.collection("shelters").findOne({ _id: new ObjectId(id) })
+    return shelter
+}
+
+export async function createShelter(shelter) {
+    const db = conexion()
+    const nuevo = {
+        name: shelter.name,
+        photo: shelter.photo,
+        description: shelter.description
+    }
+    const result = await db.collection("shelters").insertOne(nuevo)
+    return { _id: result.insertedId, ...nuevo }
+}
+
+export async function shelterExists(id) {
+    const db = conexion()
+    const count = await db.collection("shelters").countDocuments({ _id: new ObjectId(id) })
+    return count > 0
+}
+
+export async function getPetsByShelterId(shelterId) {
+    const db = conexion()
+    const pets = await db.collection("pets").find({
+        shelter_id: new ObjectId(shelterId),
+        eliminado: { $ne: true }
+    }).toArray()
+    return pets
 }

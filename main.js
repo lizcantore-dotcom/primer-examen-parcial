@@ -1,10 +1,9 @@
-
 import express from "express"
-import dotenv from "dotenv"
-
 import petsRoute from "./routes/pets.route.js"
 import petsApiRoute from "./api/routes/pets.route.js"
 import usuariosApiRoute from "./api/routes/users.route.js"
+
+import dotenv from "dotenv"
 
 dotenv.config()
 

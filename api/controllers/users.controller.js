@@ -1,4 +1,4 @@
-import * as shelterService from "../../services/shelters.service.js"
+import * as shelterService from "../../services/pets.service.js"
 
 export async function getShelters(req, res) {
     try {
