@@ -49,8 +49,8 @@ export function createList(lista) {
                 : `<span class="text-muted small">Sin asignar</span>`}
             </td>
             <td>
-                <a class="btn btn-primary btn-sm" href="/mascotas/${pet._id}">Ver</a>
-                <a class="btn btn-warning btn-sm" href="/mascotas/editar/${pet._id}">Editar</a>
+                <a class="btn btn-info text-white btn-sm" href="/mascotas/${pet._id}">Ver</a>
+                <a class="btn btn-outline-secondary" href="/mascotas/editar/${pet._id}">Editar</a>
                 <a class="btn btn-danger btn-sm" href="/mascotas/eliminar/${pet._id}">Borrar</a>
             </td>
         </tr>

@@ -91,7 +91,7 @@ export async function eliminarPetsForm(req, res) {
 }
 
 
-        // Listado de refugios web
+// Listado de refugios web
 
 export async function getRefugiosWeb(req, res) {
     try {
@@ -121,7 +121,7 @@ export async function getRefugiosWeb(req, res) {
     }
 }
 
-            // Detalle de mascotas por refugio
+    // Detalle de mascotas por refugio
             
 export async function getRefugioMascotasWeb(req, res) {
     try {
@@ -143,7 +143,7 @@ export async function getRefugioMascotasWeb(req, res) {
             html += `<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">`
             mascotas.forEach(pet => {
                 const imgUrl = pet.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80'
-                const tamano = pet.size || pet.tamaño || 'No especificado'
+                const tamano = pet.size || pet.tamaño
                 
                 html += `
                 <div class="col">
